@@ -1,0 +1,174 @@
+In package.json we have these 3 lines:
+"server": "nodemon backend/server.js",
+"client": "npm start --prefix frontend",
+"dev": "concurrently \"npm run server\" \"npm run client\""
+The first line is to start the backend api
+The second line is to start the react client
+The third is to run both at the same time instead of having to have 2 terminal windows up.
+You only have to run npm run dev
+
+in the frontend's package.json, we added "proxy": "http://localhost:5000" so that we don't have to type the whole thing out fetch('http://localhost:5000/api/products') whenever we want to refer to something and we wont have to change it at deployment. So now, we'll only need to type fetch('/api/products') because it'll know to add that to the beginning.
+
+mongo pw
+darkstrings
+wm13wTnR0oOG794r
+
+Here's a step-by-step breakdown of what happens when a request is made to {{baseURL}}/users/profile:
+
+Step 1: Request received by the server
+
+The request is received by the Express.js server, which is listening for incoming requests on the specified port (e.g., http://localhost:5000).
+
+Step 2: Server routes the request
+
+The server checks the URL of the incoming request and matches it against the routes defined in the server.js file. In this case, the request URL is {{baseURL}}/users/profile, which matches the route defined in the userRoutes.js file: router.route("/profile").get(getUserProfile).put(updateUserProfile);.
+
+Step 3: Request is routed to the userRoutes file
+
+The server routes the request to the userRoutes.js file, which defines the routes for user management.
+
+Step 4: Request is handled by the getUserProfile function
+
+The userRoutes.js file checks the HTTP method of the incoming request (in this case, a GET request) and matches it against the route defined for the /profile endpoint. The request is then handled by the getUserProfile function, which is imported from the userController.js file.
+
+Step 5: getUserProfile function executes
+
+The getUserProfile function is executed, and it retrieves the user's profile information from the database (or performs any other necessary logic). In this example, the function simply returns a response with the message "User profile".
+
+Step 6: Response is sent back to the client
+
+The response from the getUserProfile function is sent back to the client through the Express.js server.
+
+Here's a visual representation of the process:
+
+Code
+CopyInsert
++---------------+
+| Client |
++---------------+
+|
+| GET /users/profile
+v
++---------------+
+| Server |
+| (server.js) |
++---------------+
+|
+| Route to userRoutes.js
+v
++---------------+
+| userRoutes.js |
+| (router.route) |
++---------------+
+|
+| Handle GET request
+| with getUserProfile
+v
++---------------+
+| userController.js |
+| (getUserProfile) |
++---------------+
+|
+| Retrieve user profile
+| information from database
+v
++---------------+
+| Database |
++---------------+
+|
+| Return response to client
+v
++---------------+
+| Client |
++---------------+
+
+Making the delete button work:
+
+Go to productController.js and add the route and export it:
+
+const deleteProduct = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (product) {
+    await Product.deleteOne({ _id: product._id });
+    res.status(200).json({ message: "Product deleted successfully" });
+  } else {
+    res.status(404);
+    throw new Error("Resource not found");
+  }
+});
+
+Then go to productRoutes
+import deleteProduct that you just made
+
+And add the .delete() request to the router.route("/:id") line
+router.route("/:id").get(getProductById).put(protect, admin, updateProduct).delete(protect, admin, deleteProduct);
+
+// That's it for backend
+// Then we work with the state in the slice and actions then go to the screen for the event handlers etc
+
+// in productsApiSlice, add deleteProduct
+
+  deleteProduct: builder.mutation({
+      query: (productId) => ({
+        url: `${PRODUCTS_URL}/${productId}`,
+        method: "DELETE",
+      }),
+    }),
+
+// Then export it useDeleteProductMutation (It knows what to do with the use and Mutation in the name)
+
+Then in productListScreen, bring in useDeleteProductMutation
+
+Then destructure out deleteProduct and isLoading and rename it loadingDelete (isLoading is baked into redux toolkit)
+
+Set the handler
+
+   const deleteHandler = async (id) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        await deleteProduct(id);
+        refetch();
+        toast.success("Product deleted successfully");
+      } catch (err) {
+        toast(err?.data?.message || err.error);
+      }
+    }
+  };
+
+  add the isLoading check
+    {loadingDelete && <Loader />}
+
+    and the button
+     <Button variant="danger"
+        className="btn-sm mx-2"
+        onClick={() => {
+        deleteHandler(product._id);
+                      }}>
+        <FaTrash style={{ color: "white" }} />
+    </Button>
+
+
+
+UNWRAP
+
+    When you call unwrap() on a promise returned by axios, it will automatically unwrap the response data from the promise, so you don't have to access the data property of the response object.
+
+In other words, unwrap() is a convenience method that allows you to get the response data directly, without having to use the then() method or await keyword to access the response object.
+
+Here's an example to illustrate the difference:
+
+Without unwrap()
+
+javascript
+CopyInsert
+const response = await payOrder({ orderId, details });
+const data = response.data;
+With unwrap()
+
+javascript
+CopyInsert
+const data = await payOrder({ orderId, details }).unwrap();
+As you can see, unwrap() saves you from having to access the data property of the response object explicitly.
+
+However, in your original code, you were using unwrap() with await, which is not necessary, as await already unwraps the promise and returns the response data. So, in this case, unwrap() was not doing anything useful, and removing it was the correct solution.
