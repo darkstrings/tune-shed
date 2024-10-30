@@ -30,17 +30,22 @@ const ProductEditScreen = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
+      let unformattedPrice = parseFloat(price);
+      if (unformattedPrice % 1 === 0) {
+        unformattedPrice = unformattedPrice - 0.01;
+      }
+      const formattedPrice = unformattedPrice.toFixed(2);
       await updateProduct({
         productId,
         name,
-        price,
+        price: formattedPrice,
         image,
         brand,
         category,
         condition,
         description,
         countInStock,
-      }).unwrap(); //Unwrap the Promise to catch any rejection. (Would've been handy in middle school.)
+      }).unwrap();
       toast.success("Product updated");
       refetch();
       navigate("/admin/productlist");
