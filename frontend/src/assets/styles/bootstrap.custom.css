@@ -95,11 +95,11 @@
   --bs-tertiary-bg-rgb: 244, 244, 244;
   --bs-body-bg: #cfcaca;
   --bs-body-bg-rgb: 255, 255, 255;
-  --bs-link-color: rgb(166, 191, 217);
-  --bs-link-color-rgb: 166, 191, 217;
+  --bs-link-color: #4a1212;
+  --bs-link-color-rgb: rgb(74, 18, 18);
   --bs-link-decoration: underline;
-  --bs-link-hover-color: #303d4a;
-  --bs-link-hover-color-rgb: 48, 61, 74;
+  --bs-link-hover-color: #ca0606;
+  --bs-link-hover-color-rgb: rgb(202, 6, 6);
   --bs-code-color: #d63384;
   --bs-highlight-bg: #fdebd0;
   --bs-border-width: 1px;
@@ -368,6 +368,7 @@ sup {
 }
 
 a {
+  /* THIS CONTROLS THE COLOR OF THE UNDERLINE ONLY */
   color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));
   text-decoration: underline;
 }
@@ -4410,7 +4411,7 @@ fieldset:disabled .btn {
   --bs-card-spacer-y: 1.2rem;
   --bs-card-spacer-x: 1.2rem;
   --bs-card-title-spacer-y: 0.6rem;
-  --bs-card-title-color: ;
+  --bs-card-title-color: rgb(74, 18, 18);
   --bs-card-subtitle-color: ;
   --bs-card-border-width: var(--bs-border-width);
   --bs-card-border-color: var(--bs-border-color-translucent);
