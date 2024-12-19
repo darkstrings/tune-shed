@@ -35,7 +35,7 @@ const Header = () => {
       <Navbar bg="primary" variant="light" expand="lg" collapseOnSelect>
         <Container>
           <Navbar.Brand as={Link} to="/">
-            <img src={logo} alt="Tune Shed" />
+            <img src={logo} alt="Tune Shed" className="logo-img" />
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
