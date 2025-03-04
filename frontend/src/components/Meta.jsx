@@ -11,7 +11,7 @@ const Meta = ({ title, description, keywords }) => {
 };
 
 Meta.defaultProps = {
-  title: "Welcome To Tune Shop",
+  title: "Welcome To Tune Shed Music!",
   description: "A new source for new and used guitars",
   keywords: "guitars, buy guitars, cheap guitars",
 };
