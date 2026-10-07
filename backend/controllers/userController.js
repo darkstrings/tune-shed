@@ -1,192 +1,127 @@
-import asyncHandler from '../middleware/asyncHandler.js';
-import generateToken from '../utils/generateToken.js';
-import User from '../models/userModel.js';
+import generateToken from "../utils/generateToken.js";
+import User from "../models/userModel.js";
 
-// @desc    Auth user & get token
+const publicUser = (u) => ({ _id: u._id, name: u.name, email: u.email, isAdmin: u.isAdmin, isDemo: Boolean(u.isDemo) });
+
+// @desc    Sign in & set auth cookie
 // @route   POST /api/users/auth
 // @access  Public
-const authUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
+export async function authUser(req, res) {
+  const email = String(req.body.email ?? "").toLowerCase().trim();
+  const password = String(req.body.password ?? "");
   const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
-    generateToken(res, user._id);
-
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    });
-  } else {
+  if (!user || !(await user.matchPassword(password))) {
     res.status(401);
-    throw new Error('Invalid email or password');
+    throw new Error("Invalid email or password");
   }
-});
+  generateToken(res, user._id);
+  res.json(publicUser(user));
+}
 
-// @desc    Register a new user
+// @desc    Register
 // @route   POST /api/users
 // @access  Public
-const registerUser = asyncHandler(async (req, res) => {
+export async function registerUser(req, res) {
   const { name, email, password } = req.body;
-
-  const userExists = await User.findOne({ email });
-
-  if (userExists) {
+  if (await User.exists({ email: String(email ?? "").toLowerCase().trim() })) {
     res.status(400);
-    throw new Error('User already exists');
+    throw new Error("An account with that email already exists");
   }
+  const user = await User.create({ name, email, password });
+  generateToken(res, user._id);
+  res.status(201).json(publicUser(user));
+}
 
-  const user = await User.create({
-    name,
-    email,
-    password,
-  });
-
-  if (user) {
-    generateToken(res, user._id);
-
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    });
-  } else {
-    res.status(400);
-    throw new Error('Invalid user data');
-  }
-});
-
-// @desc    Logout user / clear cookie
+// @desc    Sign out / clear cookie
 // @route   POST /api/users/logout
 // @access  Public
-const logoutUser = (req, res) => {
-  res.clearCookie('jwt');
-  res.status(200).json({ message: 'Logged out successfully' });
-};
+export function logoutUser(req, res) {
+  res.clearCookie("jwt", { httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV !== "development" });
+  res.json({ message: "Logged out successfully" });
+}
 
-// @desc    Get user profile
+// @desc    Current user's profile
 // @route   GET /api/users/profile
 // @access  Private
-const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+export function getUserProfile(req, res) {
+  res.json(publicUser(req.user));
+}
 
-  if (user) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
-  }
-});
-
-// @desc    Update user profile
+// @desc    Update own profile
 // @route   PUT /api/users/profile
-// @access  Private
-const updateUserProfile = asyncHandler(async (req, res) => {
+// @access  Private (not demo)
+export async function updateUserProfile(req, res) {
   const user = await User.findById(req.user._id);
+  const email = req.body.email?.toLowerCase().trim();
 
-  if (user) {
-    user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
-
-    if (req.body.password) {
-      user.password = req.body.password;
-    }
-
-    const updatedUser = await user.save();
-
-    res.json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      isAdmin: updatedUser.isAdmin,
-    });
-  } else {
-    res.status(404);
-    throw new Error('User not found');
+  if (email && email !== user.email && (await User.exists({ email }))) {
+    res.status(400);
+    throw new Error("That email is already in use");
   }
-});
+  user.name = req.body.name || user.name;
+  user.email = email || user.email;
+  if (req.body.password) user.password = req.body.password;
 
-// @desc    Get all users
+  res.json(publicUser(await user.save()));
+}
+
+// @desc    All users
 // @route   GET /api/users
 // @access  Private/Admin
-const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({});
-  res.json(users);
-});
+export async function getUsers(req, res) {
+  res.json(await User.find({}).select("-password").sort({ createdAt: -1 }));
+}
 
 // @desc    Delete user
 // @route   DELETE /api/users/:id
 // @access  Private/Admin
-const deleteUser = asyncHandler(async (req, res) => {
+export async function deleteUser(req, res) {
   const user = await User.findById(req.params.id);
-
-  if (user) {
-    if (user.isAdmin) {
-      res.status(400);
-      throw new Error('Can not delete admin user');
-    }
-    await User.deleteOne({ _id: user._id });
-    res.json({ message: 'User removed' });
-  } else {
+  if (!user) {
     res.status(404);
-    throw new Error('User not found');
+    throw new Error("User not found");
   }
-});
+  if (user.isAdmin) {
+    res.status(400);
+    throw new Error("Admin users can't be deleted");
+  }
+  await user.deleteOne();
+  res.json({ message: "User removed" });
+}
 
-// @desc    Get user by ID
+// @desc    Get user by id
 // @route   GET /api/users/:id
 // @access  Private/Admin
-const getUserById = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id).select('-password');
-
-  if (user) {
-    res.json(user);
-  } else {
+export async function getUserById(req, res) {
+  const user = await User.findById(req.params.id).select("-password");
+  if (!user) {
     res.status(404);
-    throw new Error('User not found');
+    throw new Error("User not found");
   }
-});
+  res.json(user);
+}
+
 // @desc    Update user
 // @route   PUT /api/users/:id
 // @access  Private/Admin
-const updateUser = asyncHandler(async (req, res) => {
+export async function updateUser(req, res) {
   const user = await User.findById(req.params.id);
-
-  if (user) {
-    user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
-    user.isAdmin = Boolean(req.body.isAdmin);
-
-    const updatedUser = await user.save();
-
-    res.json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      isAdmin: updatedUser.isAdmin,
-    });
-  } else {
+  if (!user) {
     res.status(404);
-    throw new Error('User not found');
+    throw new Error("User not found");
   }
-});
-
-export {
-  authUser,
-  registerUser,
-  logoutUser,
-  getUserProfile,
-  updateUserProfile,
-  getUsers,
-  deleteUser,
-  getUserById,
-  updateUser,
-};
+  const email = req.body.email?.toLowerCase().trim();
+  if (email && email !== user.email && (await User.exists({ email }))) {
+    res.status(400);
+    throw new Error("That email is already in use");
+  }
+  if (String(user._id) === String(req.user._id) && req.body.isAdmin === false) {
+    res.status(400);
+    throw new Error("You can't remove your own admin access");
+  }
+  user.name = req.body.name || user.name;
+  user.email = email || user.email;
+  if (req.body.isAdmin !== undefined) user.isAdmin = Boolean(req.body.isAdmin);
+  res.json(publicUser(await user.save()));
+}

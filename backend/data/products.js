@@ -9,7 +9,11 @@ const products = [
     price: 2999.99,
     countInStock: 2,
     rating: 4.5,
-    condition: "good",
+    condition: "Good",
+    sampleReviews: [
+      { rating: 5, comment: "Sustain for days and that red-filled ash grain looks even better in person." },
+      { rating: 4, comment: "Heavy-ish, but the 500T bridge pickup is a monster for drop tunings." },
+    ],
     numReviews: 12,
   },
   {
@@ -22,7 +26,11 @@ const products = [
     price: 1199.99,
     countInStock: 7,
     rating: 4.0,
-    condition: "new",
+    condition: "New",
+    sampleReviews: [
+      { rating: 4, comment: "Arrived set up perfectly. The Sustainiac takes some practice but it’s addictive." },
+      { rating: 4, comment: "Floyd stays in tune through dive bombs. Great value." },
+    ],
     numReviews: 8,
   },
   {
@@ -35,7 +43,11 @@ const products = [
     price: 929.99,
     countInStock: 1,
     rating: 3,
-    condition: "good",
+    condition: "Good",
+    sampleReviews: [
+      { rating: 3, comment: "Gorgeous tone, though the neck is chunkier than I expected." },
+      { rating: 4, comment: "Sounds bigger every week as it opens up." },
+    ],
     numReviews: 12,
   },
   {
@@ -48,7 +60,11 @@ const products = [
     price: 2499.99,
     countInStock: 1,
     rating: 5,
-    condition: "good",
+    condition: "Good",
+    sampleReviews: [
+      { rating: 5, comment: "Played-in mahogany warmth you can’t fake. The crack repair is solid." },
+      { rating: 5, comment: "My favorite guitar in the house now. Worth every penny." },
+    ],
     numReviews: 12,
   },
   {
@@ -60,7 +76,11 @@ const products = [
     price: 699.99,
     countInStock: 1,
     rating: 3.5,
-    condition: "like new",
+    condition: "Like New",
+    sampleReviews: [
+      { rating: 4, comment: "Classic P thump, basically new. Packed really well." },
+      { rating: 3, comment: "Great bass, but I wish it came with a case." },
+    ],
     numReviews: 10,
   },
   {
@@ -72,7 +92,11 @@ const products = [
     price: 149.99,
     countInStock: 0,
     rating: 4,
-    condition: "as is",
+    condition: "As Is",
+    sampleReviews: [
+      { rating: 4, comment: "Lovely little nylon-string for the price, just needed new strings." },
+      { rating: 3, comment: "Some cosmetic wear as described. Plays fine." },
+    ],
     numReviews: 12,
   },
 ];

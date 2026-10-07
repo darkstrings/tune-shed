@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* -----------------------------------------------------------------
+   Tune Shed tokens — a vintage guitar-shop feel: warm paper, walnut
+   ink, the logo's red, and a brass accent for ratings/highlights.
+   ----------------------------------------------------------------- */
+:root {
+  --bg: #f6f1e8;
+  --surface: #fffdf9;
+  --surface-2: #f0e9dd;
+  --surface-3: #e6dccb;
+  --border: #e3d8c6;
+  --border-strong: #cdbfa8;
+  --fg: #231a14;
+  --muted: #6e6156;
+  --subtle: #9a8c7f;
+
+  --accent: #b81d1d;
+  --accent-hover: #9c1616;
+  --accent-fg: #fff7f2;
+  --accent-soft: color-mix(in oklab, var(--accent) 10%, transparent);
+
+  --brass: #b7791f;
+  --ok: #15803d;
+  --ok-soft: #dcfce7;
+  --warn: #a16207;
+  --warn-soft: #fef3c7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --info: #1d4ed8;
+  --info-soft: #dbeafe;
+
+  --shadow: 0 1px 2px rgb(60 40 20 / 0.06), 0 10px 30px -18px rgb(60 40 20 / 0.35);
+}
+
+.dark {
+  --bg: #15110e;
+  --surface: #1e1915;
+  --surface-2: #26201b;
+  --surface-3: #312923;
+  --border: #352c25;
+  --border-strong: #4a3e35;
+  --fg: #f4ece2;
+  --muted: #b3a597;
+  --subtle: #7f7266;
+
+  --accent: #ef4444;
+  --accent-hover: #f87171;
+  --accent-fg: #1a0505;
+
+  --brass: #e0a43a;
+  --ok: #4ade80;
+  --ok-soft: rgb(74 222 128 / 0.12);
+  --warn: #facc15;
+  --warn-soft: rgb(250 204 21 / 0.12);
+  --danger: #f87171;
+  --danger-soft: rgb(248 113 113 / 0.12);
+  --info: #60a5fa;
+  --info-soft: rgb(96 165 250 / 0.12);
+
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 14px 36px -18px rgb(0 0 0 / 0.8);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-brass: var(--brass);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --shadow-card: var(--shadow);
+}
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --radius-card: 1.125rem;
+  --animate-fade-up: fade-up 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-bg font-sans text-fg antialiased;
+    min-height: 100dvh;
+  }
+
+  /* faint paper grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.35;
+    background-image: radial-gradient(rgb(120 90 60 / 0.07) 1px, transparent 1px);
+    background-size: 4px 4px;
+  }
+
+  .dark body::before {
+    opacity: 0.25;
+    background-image: radial-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-card border border-border bg-surface shadow-card;
+  }
+
+  .field {
+    @apply w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-fg shadow-sm transition-colors
+      placeholder:text-subtle focus:border-accent focus:ring-3 focus:ring-accent-soft focus:outline-none
+      disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .label {
+    @apply text-sm font-medium text-fg;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold tracking-[0.18em] text-accent uppercase;
+  }
+
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .logo-mark {
+    display: inline-block;
+    background-color: currentColor;
+    -webkit-mask: url("/logo-mark.png") center / contain no-repeat;
+    mask: url("/logo-mark.png") center / contain no-repeat;
+  }
+}

@@ -1,24 +1,27 @@
-import express from 'express';
-const router = express.Router();
+import express from "express";
 import {
   getProducts,
+  getFilters,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
   createProductReview,
   getTopProducts,
-} from '../controllers/productController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
-import checkObjectId from '../middleware/checkObjectId.js';
+} from "../controllers/productController.js";
+import { protect, admin, blockDemo } from "../middleware/authMiddleware.js";
+import checkObjectId from "../middleware/checkObjectId.js";
 
-router.route('/').get(getProducts).post(protect, admin, createProduct);
-router.route('/:id/reviews').post(protect, checkObjectId, createProductReview);
-router.get('/top', getTopProducts);
+const router = express.Router();
+
+router.route("/").get(getProducts).post(protect, admin, blockDemo, createProduct);
+router.get("/top", getTopProducts);
+router.get("/filters", getFilters);
+router.post("/:id/reviews", protect, blockDemo, checkObjectId, createProductReview);
 router
-  .route('/:id')
+  .route("/:id")
   .get(checkObjectId, getProductById)
-  .put(protect, admin, checkObjectId, updateProduct)
-  .delete(protect, admin, checkObjectId, deleteProduct);
+  .put(protect, admin, blockDemo, checkObjectId, updateProduct)
+  .delete(protect, admin, blockDemo, checkObjectId, deleteProduct);
 
 export default router;

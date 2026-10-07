@@ -1,40 +1,45 @@
-import jwt from 'jsonwebtoken';
-import asyncHandler from './asyncHandler.js';
-import User from '../models/userModel.js';
+import jwt from "jsonwebtoken";
+import User from "../models/userModel.js";
 
-// User must be authenticated
-const protect = asyncHandler(async (req, res, next) => {
-  let token;
-
-  // Read JWT from the 'jwt' cookie
-  token = req.cookies.jwt;
-
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      req.user = await User.findById(decoded.userId).select('-password');
-
-      next();
-    } catch (error) {
-      console.error(error);
-      res.status(401);
-      throw new Error('Not authorized, token failed');
-    }
-  } else {
+/** Requires a valid JWT cookie; attaches the user (without password) to req.user. */
+export async function protect(req, res, next) {
+  const token = req.cookies?.jwt;
+  if (!token) {
     res.status(401);
-    throw new Error('Not authorized, no token');
+    throw new Error("Not authorized, please sign in");
   }
-});
 
-// User must be an admin
-const admin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
-    next();
-  } else {
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch {
     res.status(401);
-    throw new Error('Not authorized as an admin');
+    throw new Error("Not authorized, session expired");
   }
-};
 
-export { protect, admin };
+  const user = await User.findById(decoded.userId).select("-password");
+  if (!user) {
+    res.status(401);
+    throw new Error("Not authorized, account no longer exists");
+  }
+  req.user = user;
+  next();
+}
+
+export function admin(req, res, next) {
+  if (req.user?.isAdmin) return next();
+  res.status(403);
+  throw new Error("Not authorized as an admin");
+}
+
+/**
+ * Demo accounts can browse everything (including the admin area) but can't change
+ * shared data, so the public demo stays intact for the next visitor.
+ */
+export function blockDemo(req, res, next) {
+  if (req.user?.isDemo) {
+    res.status(403);
+    throw new Error("Demo accounts are read-only. Create your own account to try this.");
+  }
+  next();
+}

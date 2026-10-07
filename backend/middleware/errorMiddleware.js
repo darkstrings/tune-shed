@@ -1,20 +1,30 @@
-const notFound = (req, res, next) => {
-  const error = new Error(`Not Found - ${req.originalUrl}`);
+export function notFound(req, res, next) {
   res.status(404);
-  next(error);
-};
+  next(new Error(`Not found - ${req.originalUrl}`));
+}
 
-const errorHandler = (err, req, res, next) => {
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+// Express 5 forwards rejected promises from async handlers here automatically.
+export function errorHandler(err, req, res, _next) {
+  let status = res.statusCode === 200 ? 500 : res.statusCode;
   let message = err.message;
 
-  // NOTE: checking for invalid ObjectId moved to it's own middleware
-  // See README for further info.
+  if (err.name === "ValidationError") {
+    status = 400;
+    message = Object.values(err.errors)
+      .map((e) => e.message)
+      .join(", ");
+  } else if (err.name === "CastError") {
+    status = 404;
+    message = "Resource not found";
+  } else if (err.type === "entity.too.large") {
+    status = 413;
+    message = "Request is too large";
+  }
 
-  res.status(statusCode).json({
-    message: message,
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+  if (status >= 500) console.error(err);
+
+  res.status(status).json({
+    message: status >= 500 && process.env.NODE_ENV === "production" ? "Something went wrong" : message,
+    ...(process.env.NODE_ENV === "production" ? {} : { stack: err.stack }),
   });
-};
-
-export { notFound, errorHandler };
+}

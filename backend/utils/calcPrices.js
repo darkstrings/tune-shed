@@ -1,34 +1,11 @@
-function addDecimals(num) {
-  return (Math.round(num * 100) / 100).toFixed(2);
-}
+const round2 = (n) => Math.round(n * 100) / 100;
 
-// NOTE: the code below has been changed from the course code to fix an issue
-// with type coercion of strings to numbers.
-// Our addDecimals function expects a number and returns a string, so it is not
-// correct to call it passing a string as the argument.
-
+/** Server-side price calculation. Works in cents to avoid floating point drift. */
 export function calcPrices(orderItems) {
-  // Calculate the items price in whole number (pennies) to avoid issues with
-  // floating point number calculations
-  const itemsPrice = orderItems.reduce(
-    (acc, item) => acc + (item.price * 100 * item.qty) / 100,
-    0
-  );
-
-  // Calculate the shipping price
+  const itemsCents = orderItems.reduce((acc, item) => acc + Math.round(item.price * 100) * item.qty, 0);
+  const itemsPrice = itemsCents / 100;
   const shippingPrice = itemsPrice > 100 ? 0 : 10;
-
-  // Calculate the tax price
-  const taxPrice = 0.15 * itemsPrice;
-
-  // Calculate the total price
-  const totalPrice = itemsPrice + shippingPrice + taxPrice;
-
-  // return prices as strings fixed to 2 decimal places
-  return {
-    itemsPrice: addDecimals(itemsPrice),
-    shippingPrice: addDecimals(shippingPrice),
-    taxPrice: addDecimals(taxPrice),
-    totalPrice: addDecimals(totalPrice),
-  };
+  const taxPrice = round2(0.15 * itemsPrice);
+  const totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
+  return { itemsPrice: round2(itemsPrice), shippingPrice, taxPrice, totalPrice };
 }
