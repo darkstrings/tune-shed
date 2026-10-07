@@ -43,7 +43,7 @@ A full-stack guitar shop built on the **MERN** stack (MongoDB, Express, React, N
 | | |
 |---|---|
 | Frontend | React 19, React Router 8, Redux Toolkit 2 + RTK Query, Tailwind CSS 4, Vite 8 |
-| Backend | Node 20+, Express 5, Mongoose 9, JSON Web Tokens, Multer |
+| Backend | Node 22.22+, Express 5, Mongoose 9, JSON Web Tokens, Multer |
 | Payments | PayPal JS SDK (`@paypal/react-paypal-js`) + PayPal Orders API verification |
 | Tests | `node:test` end-to-end API tests with a local PayPal mock |
 
