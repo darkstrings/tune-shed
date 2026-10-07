@@ -33,6 +33,6 @@
     "multer": "^2.4.0"
   },
   "devDependencies": {
-    "concurrently": "^10.0.5"
+    "concurrently": "^9.2.1"
   }
 }
