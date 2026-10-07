@@ -2,9 +2,9 @@
 
 A full-stack guitar shop built on the **MERN** stack (MongoDB, Express, React, Node), with **PayPal checkout**, customer accounts and a complete admin area.
 
-**Live demo:** https://tune-shed.onrender.com. Use the **Demo shopper** or **Demo admin** buttons on the sign-in page. Both demo accounts are read-only, so you can explore everything without changing the store. Payments run in PayPal's **sandbox**, so no real money moves.
+**Live demo:** https://lucien-code-tune-shed.netlify.app. Use the **Demo shopper** or **Demo admin** buttons on the sign-in page. Both demo accounts are read-only, so you can explore everything without changing the store. Payments run in PayPal's **sandbox**, so no real money moves.
 
-> The demo is on a free hosting tier, so the first visit after a quiet spell can take ~30 seconds while the server wakes up.
+> The API runs on a free hosting tier, so after a quiet spell the products can take ~30 seconds to appear while the server wakes up.
 
 ## Features
 
@@ -81,7 +81,11 @@ frontend/
 | `npm run build` | Installs everything and builds the frontend (used by Render) |
 | `npm start` | Production server (serves the API and the built frontend) |
 
-## Deploying to Render
+## Deploying
+
+The live site is split in two: **Netlify** serves the React frontend and forwards `/api` and `/uploads` to the **Render** server (see `netlify.toml`), so the browser only ever talks to one domain.
+
+### Render (API)
 
 - **Build command:** `npm run build`
 - **Start command:** `npm start`
