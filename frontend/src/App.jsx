@@ -3,6 +3,7 @@ import { Outlet, ScrollRestoration, useLocation } from "react-router";
 import { Toaster } from "sonner";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
+import WakeBanner from "./components/layout/WakeBanner";
 import { useTheme } from "./context/ThemeContext";
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
         Skip to content
       </a>
       <Header />
+      <WakeBanner />
       <main id="main" className="container-x min-h-[70vh] py-8 sm:py-10">
         <Outlet />
       </main>

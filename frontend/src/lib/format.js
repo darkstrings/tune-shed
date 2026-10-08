@@ -6,5 +6,12 @@ export const shortDate = (d) =>
 
 export const shortId = (id = "") => `#${String(id).slice(-6).toUpperCase()}`;
 
+const WAKING = new Set([502, 503, 504, "FETCH_ERROR", "TIMEOUT_ERROR"]);
+
 /** Readable message from an RTK Query error. */
-export const errMsg = (err) => err?.data?.message || err?.error || err?.message || "Something went wrong";
+export function errMsg(err) {
+  if (err?.data?.message) return err.data.message;
+  if (WAKING.has(err?.status) || WAKING.has(err?.originalStatus))
+    return "The store's server is taking longer than usual to wake up. Please refresh the page in a moment.";
+  return err?.error || err?.message || "Something went wrong";
+}
